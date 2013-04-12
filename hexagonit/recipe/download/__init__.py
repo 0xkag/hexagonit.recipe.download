@@ -82,7 +82,17 @@ class Recipe(object):
 
         destination = self.options.get('destination')
         download = Download(self.buildout['buildout'], hash_name=self.options['hash-name'].strip() in TRUE_VALUES)
-        path, is_temp = download(self.options['url'], md5sum=self.options.get('md5sum'))
+        urls = self.options['url'].split()
+        excp = None
+        for url in urls:
+            try:
+                path, is_temp = download(url, md5sum=self.options.get('md5sum'))
+            except Exception as e:
+                excp = e
+                continue
+            break
+        else:
+            raise excp or Exception('error')
 
         parts = []
 
